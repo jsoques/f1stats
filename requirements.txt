@@ -1,0 +1,8 @@
+aiosqlite==0.21.0
+fastapi==0.115.8
+htmlgenerator==1.2.32
+lxml==5.3.0
+pygal==3.0.5
+sqlmodel==0.0.22
+uvicorn==0.34.0
+uvloop==0.21.0
