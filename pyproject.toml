@@ -1,0 +1,18 @@
+[project]
+name = "f1stats"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.20.0",
+    "fastapi>=0.115.6",
+    "htmlgenerator>=1.2.32",
+    "lxml>=5.3.0",
+    "pygal>=3.0.5",
+    "sqlmodel>=0.0.22",
+    "uvicorn[standard]>=0.34.0",
+]
+
+[dependency-groups]
+dev = ["omymodels>=0.17.0"]

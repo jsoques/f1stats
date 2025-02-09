@@ -1,0 +1,14 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+F1 DB Statistics*
+f1db_statistics_chatgpt_queries.md
+queries.sql
