@@ -43,7 +43,16 @@ To set up the F1Stats application locally, follow these steps:
    pip install -r requirements.txt
    ```
 
-4. **Run the Application**:
+4. **Download F1 database**:
+
+    ```bash
+    cd datastore
+    wget https://github.com/f1db/f1db/releases/download/v2025.0.4/f1db-sqlite.zip
+    uz f1db-sqlite.zip
+    cd ..
+    ```
+
+5. **Run the Application**:
 
    ```bash
    uvicorn app.main:app --port 8888 --host 0.0.0.0 --loop uvloop --reload
