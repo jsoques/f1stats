@@ -66,6 +66,10 @@ Once the application is running, you can:
 
 - **Select a year**: Race results for the season and other historic statistics (WIP).
 
+## Screenshot
+
+![alt text](myscreenshot.png "Title")
+
 ## Contributing
 
 We welcome contributions to enhance F1Stats. To contribute:
