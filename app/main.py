@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import htmlgenerator as hg
 from htmlgenerator import mark_safe
 from sqlalchemy.sql.functions import count
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
 import pygal
 
 from app.database import close_db, create_db_and_tables, get_db
@@ -60,6 +60,50 @@ def read_season(year: Optional[int | None] = None, db: Session = Depends(get_db)
 
     if year == 0:
         return ""
+
+    races_sql = f"""SELECT
+    id,
+	round,
+	"year",
+	date,
+	grand_prix_id,
+	official_name,
+	circuit_id
+FROM
+	race AS r
+WHERE
+	r.id IN (
+	SELECT
+		race_id
+	FROM
+		race_data AS rd
+	WHERE
+		"year" = {year}
+		AND "type" = 'RACE_RESULT'
+)"""
+
+    races = db.exec(text(races_sql)).all()
+
+    race_results = []
+
+    for race in races:
+        statement = (
+            select(
+                Race_Data.position_display_order,
+                Driver.first_name,
+                Driver.last_name,
+                Constructor.full_name,
+            )
+            .join(Driver, Race_Data.driver_id == Driver.id)
+            .join(Constructor, Race_Data.constructor_id == Constructor.id)
+            .where(Race_Data.race_id == race.id)
+            .where(Race_Data.type == "RACE_RESULT")
+            .order_by(Race_Data.position_display_order)
+            .limit(3)
+        )
+        res = db.exec(statement).all()
+
+        race_results.append({"race": race, "results": res})
 
     number_of_races = db.exec(
         select(Race).where(Race.year == year).order_by(Race.date)
@@ -250,6 +294,52 @@ def read_season(year: Optional[int | None] = None, db: Session = Depends(get_db)
                         hg.TD(str(race.round)),
                     )
                     for race in number_of_races
+                ]
+            ),
+            _class="pure-table pure-table-bordered",
+        ),
+        hg.HR(),
+        hg.H2(f"Race results {str(year)}"),
+        hg.TABLE(
+            hg.THEAD(
+                hg.TR(
+                    hg.TH("Round", width="50px"),
+                    hg.TH("Date", width="90px"),
+                    hg.TH("Grand Prix", width="400px"),
+                )
+            ),
+            hg.TBODY(
+                *[
+                    hg.TR(
+                        hg.TABLE(
+                            hg.TR(
+                                hg.TD(str(race_res["race"].round), width="50px"),
+                                hg.TD(race_res["race"].date, width="90px"),
+                                hg.TD(
+                                    str(race_res["race"].official_name), width="400px"
+                                ),
+                            ),
+                            hg.TR(
+                                hg.TD("Winners", colspan="3", align="center"),
+                            ),
+                            *[
+                                hg.TR(
+                                    hg.TD(mark_safe("&nbsp;"), width="50px"),
+                                    hg.TD(
+                                        str(results.position_display_order),
+                                        width="90px",
+                                    ),
+                                    hg.TD(
+                                        results.first_name + " " + results.last_name,
+                                        width="400px",
+                                    ),
+                                )
+                                for results in race_res["results"]
+                            ],
+                            _class="pure-table pure-table-bordered",
+                        )
+                    )
+                    for race_res in race_results
                 ]
             ),
             _class="pure-table pure-table-bordered",
